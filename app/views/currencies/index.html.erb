@@ -1,0 +1,35 @@
+<% if @currencies.any? %>
+	<%= form_tag currencies_path, :method => 'get' do %>
+		<%= select_tag :currency_from, options_for_select(@currency_names, params[:currency_from]) %> 
+		<%= select_tag :currency_to, options_for_select(@currency_names, params[:currency_to]) %> 
+		<%= number_field_tag :value, params[:value] %>
+		<%= submit_tag 'Convert' %>
+	<% end %> 
+	<%= @converted_number %>
+<% else %>
+	Please click on button to see currencies
+<% end %> 
+<br>
+<br>
+
+<%= button_to 'Fetch Data', fetch_data_currencies_path, method: :post %>
+
+<% unless @currencies.blank? %>
+	Currencies
+	<table class="table">                         
+	 	<thead>  
+	  		<tr> 
+	    		<th>Currency</th> 
+	    		<th>Rate</th>
+	  		</tr>
+		</thead>
+		<tbody>
+			<% @currencies.each do |currency| %>
+		    	<tr>
+		      		<td><%= currency.name %></td>
+		      		<td><%= currency.rate %></td>
+		    	</tr>
+	  		<%end%> 
+		</tbody>
+	</table>
+<% end %> 
