@@ -28,8 +28,8 @@ class CurrenciesController < ActionController::Base
 
 	def fetch_data
 		if @success
-			message = Currency.updated? ? 'Successfully updated' : 'up to date'
-			return redirect_to currencies_path(wait: true), notice: message
+			message = Currency.updated? ? 'Successfully updated' : 'Up to date'
+			return redirect_to currencies_path, notice: message
 		else
 			return redirect_to currencies_path, alert: 'could not be updated!'
 		end
