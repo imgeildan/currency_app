@@ -1,10 +1,13 @@
 class Currency < ApplicationRecord
-	DEFAULT_FROM 	   = 'USD'
-	ALLOWED_CURRENCIES = ['USD', 'EUR', 'CHF']
-	
+	ALLOWED_CURRENCIES = %w[USD EUR CHF]
+
 	default_scope -> { where(name: ALLOWED_CURRENCIES) }
 
-	def update_currency_rate(new_rate)
-		update_columns(rate: new_rate) if rate != new_rate
+	def self.persisted?
+		Currency.count.positive?
+	end
+
+	def self.updated?
+		Currency.all.map { |c| c.previous_changes.empty? }.include?(false)
 	end
 end
