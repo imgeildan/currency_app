@@ -14,12 +14,12 @@ Resque.schedule = YAML.load_file('config/resque_schedule.yml')
 # set a custom namespace for redis (optional)
 #Resque.redis.namespace = "resque:currency_app"
 
-if Rails.env.development?
-	Resque.redis = Redis.new(:host => 'localhost', :port => '6379')
-    # Resque.redis = Redis.new(:host => 'localhost', :port => 6379)
-else
+if Rails.env.production?
 	uri = URI.parse(ENV['REDISTOGO_URL'])  
 	REDIS = Redis.new(:host => uri.host, :port => uri.port, :password => uri.password)
 
 	Resque.redis = REDIS
+else
+	Resque.redis = Redis.new(:host => 'localhost', :port => '6379')
+    # Resque.redis = Redis.new(:host => 'localhost', :port => 6379)
 end

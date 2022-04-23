@@ -6,20 +6,15 @@ class CurrenciesController < ActionController::Base
 	before_action :fetch_currencies, except: %i[index]
 
 	def index
-		@currencies 	= Currency.all
-		@currency_names = Currency.all.pluck(:name)
-		currency_from 	= params[:currency_from]
-		currency_to   	= params[:currency_to]
-
-		if params[:value].present? && currency_from.present? && currency_to.present?
-			result = (params[:value].to_i / Currency.find_by(name: currency_from).rate) * Currency.find_by(name: currency_to).rate
-			@converted_number = result.round(4)
-		end
-
+		@currencies 	  = Currency.all
+		@currency_names   = Currency.all.pluck(:name)
+		@converted_number = Currency.convert(params[:value], 
+								  			 params[:currency_from], 
+								  			 params[:currency_to])
 	end
 
 	def create
-		if @success && Currency.persisted?
+		if @success
 			return redirect_to currencies_path, notice: 'Successfully created'
 		else
 			return redirect_to currencies_path, alert: 'could not be created!'
@@ -28,17 +23,19 @@ class CurrenciesController < ActionController::Base
 
 	def fetch_data
 		if @success
-			message = Currency.updated? ? 'Successfully updated' : 'Up to date'
-			return redirect_to currencies_path, notice: message
+			return redirect_to currencies_path, notice: 'Successfully updated'
 		else
-			return redirect_to currencies_path, alert: 'could not be updated!'
+			return redirect_to currencies_path, alert: 'Up to date'
 		end
 	end
 
 	private
 
 	def fetch_currencies
-		@success = Resque.enqueue(CurrencyFetcherJob)
+		@error_message  = DataCache.get('error_message')
+		@currency_count = DataCache.get_i('currency_count')
+		@success = Resque.enqueue(CurrencyFetcherJob) && !@error_message && @currency_count.positive?
 		sleep(3)
+		return redirect_to currencies_path, alert: @error_message if @error_message
 	end
 end

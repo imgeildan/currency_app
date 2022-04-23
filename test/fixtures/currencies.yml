@@ -1,11 +1,11 @@
-# currency1:
-#   name: 'USD'
-#   rate: 1.0
+usd:
+  name: 'USD'
+  rate: 1.0
 
-# currency2:
-#   name: 'EUR'
-#   rate: 0.926031
+eur:
+  name: 'EUR'
+  rate: 0.926031
 
-# currency3:
-#   name: 'CHF'
-#   rate: 0.94445
+chf:
+  name: 'CHF'
+  rate: 0.94445

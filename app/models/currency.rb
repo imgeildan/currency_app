@@ -3,11 +3,13 @@ class Currency < ApplicationRecord
 
 	default_scope -> { where(name: ALLOWED_CURRENCIES) }
 
-	def self.persisted?
-		Currency.count.positive?
-	end
+	validates :name, presence: true
+	validates :rate, presence: true, numericality: true
 
-	def self.updated?
-		Currency.all.map { |c| c.previous_changes.empty? }.include?(false)
+	def self.convert(value, currency_from, currency_to)
+		if value.present? && currency_from.present? && currency_to.present?
+			result = (value.to_i / Currency.find_by(name: currency_from).rate) * Currency.find_by(name: currency_to).rate
+			return result.round(4)
+		end
 	end
 end
