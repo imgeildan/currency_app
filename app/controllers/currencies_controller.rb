@@ -15,27 +15,28 @@ class CurrenciesController < ActionController::Base
 
 	def create
 		if @success
-			return redirect_to currencies_path, notice: 'Successfully created'
+			redirect_to currencies_path, notice: 'Successfully created'
 		else
-			return redirect_to currencies_path, alert: 'could not be created!'
+			redirect_to currencies_path, alert: 'Currencies could not be created!'
 		end
 	end
 
 	def fetch_data
 		if @success
-			return redirect_to currencies_path, notice: 'Successfully updated'
+			redirect_to currencies_path, notice: 'Successfully updated'
 		else
-			return redirect_to currencies_path, alert: 'Up to date'
+			redirect_to currencies_path, alert: 'Currencies are already up to date'
 		end
 	end
 
 	private
 
 	def fetch_currencies
-		@error_message  = DataCache.get('error_message')
-		@currency_count = DataCache.get_i('currency_count')
-		@success = Resque.enqueue(CurrencyFetcherJob) && !@error_message && @currency_count.positive?
-		sleep(5)
-		return redirect_to currencies_path, alert: @error_message if @error_message
+		currency_creator = ::CurrencyManager::CurrencyCreator.new
+		result 		 	 = currency_creator.call
+		@success 		 = result[:success] && result[:updated_or_created]
+		unless result[:success]
+			return redirect_to currencies_path, alert: result[:error_message]
+		end
 	end
 end

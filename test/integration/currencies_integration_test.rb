@@ -28,5 +28,5 @@ class CurrenciesIntegrationTest < ActionDispatch::IntegrationTest
 				assert_equal 92.6031, assigns(:converted_number)
 			end
 		end
-	end
+	end  
 end

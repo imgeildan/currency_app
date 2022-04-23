@@ -4,5 +4,5 @@ default:
   rails_env: development
   class: CurrencyFetcherJob
   args:
-  queue: high
+  queue: default
   description: Runs the perform method in CurrencyFetcherJob
