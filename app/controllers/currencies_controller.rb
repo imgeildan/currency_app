@@ -35,7 +35,7 @@ class CurrenciesController < ActionController::Base
 		@error_message  = DataCache.get('error_message')
 		@currency_count = DataCache.get_i('currency_count')
 		@success = Resque.enqueue(CurrencyFetcherJob) && !@error_message && @currency_count.positive?
-		sleep(3)
+		sleep(5)
 		return redirect_to currencies_path, alert: @error_message if @error_message
 	end
 end
