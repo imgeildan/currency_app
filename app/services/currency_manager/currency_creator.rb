@@ -7,7 +7,7 @@ module CurrencyManager
 				updated_or_created = create_or_update_currencies(response['quotes']) 
 				return { success: true, updated_or_created: updated_or_created }
 			end
-
+			
 			{ success: false, error_message: response['error']['info'] }
 		end
 

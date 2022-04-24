@@ -2,30 +2,44 @@ require 'test_helper'
 require 'json'
 
 module CurrencyManager
-	class CurrencyCreatorTest < ActiveSupport::TestCase
+	class CurrencyCreatorTest < ActiveJob::TestCase
 		setup do
-			@successful_response = {
-				success:	true, 
-				terms:  	'https://currencylayer.com/terms', 
-				privacy:	'https://currencylayer.com/privacy', 
-				timestamp:  1650787934, 
-				source:		'USD', 
-				quotes:	    { 'USDUSD' => 1, 'USDEUR' => 0.92598, 'USDCHF' => 0.957491 } }
-
-			header = {
-				'Accept'	  	 =>'*/*',
-				'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-				'Host'			 =>'api.currencylayer.com',
-				'User-Agent' 	 =>'Ruby'
-			}
-
-			url = 'http://api.currencylayer.com/live?access_key=619f9c88ece35e260da483fce9ffae1f&currencies=USD,EUR,CHF'
-			stub_request(:get, url).with(headers: header).to_return(status: 200, body: @successful_response.to_json)
+			@currency_creator = CurrencyManager::CurrencyCreator.new
 		end
 
-		test 'perform' do
-			currency_creator = CurrencyManager::CurrencyCreator.new
-			assert @successful_response, currency_creator.call
+		context 'call' do
+			should 'success' do
+				Currency.delete_all
+				response = { success: true, updated_or_created: true }
+
+				assert_difference('Currency.count', 3) do
+					assert_equal response, @currency_creator.call
+				end
+			end
+
+			# should 'fail' do
+			# 	stub_request(:get, @wrong_url).with(headers: @header).to_return(status: 'fail?', body: @failed_response.to_json)
+			# 	response = { success: false, error_message: 103 }
+			# 	assert_equal response, @currency_creator.call
+			# end
+		end
+
+		test 'get_currencies_from_api' do
+			assert_equal @successful_response, @currency_creator.get_currencies_from_api
+		end
+
+		test 'create_or_update_currencies' do
+			Currency.delete_all
+			
+			# create
+			assert_difference('Currency.count', 3) do
+				assert @currency_creator.create_or_update_currencies(@successful_response['quotes'])
+			end
+
+			# update
+			assert_no_difference('Currency.count') do
+				assert @currency_creator.create_or_update_currencies(@successful_response['quotes'])
+			end
 		end
 	end
 end
