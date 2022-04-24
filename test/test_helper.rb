@@ -1,6 +1,7 @@
 ENV['RAILS_ENV'] ||= 'test'
 require_relative "../config/environment"
 require "rails/test_help"
+require 'webmock/minitest'
 
 class ActiveSupport::TestCase
   # Run tests in parallel with specified workers
@@ -16,4 +17,6 @@ class ActiveSupport::TestCase
   		with.library :rails
   	end
   end
+
+  WebMock.disable_net_connect!(allow_localhost: true)
 end

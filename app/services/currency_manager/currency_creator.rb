@@ -2,10 +2,12 @@ module CurrencyManager
 	class CurrencyCreator
 		def call
 			response = get_currencies_from_api
+
 			if response['success'] 
 				updated_or_created = create_or_update_currencies(response['quotes']) 
 				return { success: true, updated_or_created: updated_or_created }
 			end
+
 			{ success: false, error_message: response['error']['info'] }
 		end
 
@@ -28,13 +30,11 @@ module CurrencyManager
 		end
 
 		def create_or_update_currencies(currencies_hash)
-			arr = []
-			currencies_hash.each do |curr_name, curr_rate|
-				name 	 = curr_name[3..6] # 'USDEUR' --> 'EUR'
-				updated_or_created = Currency.update_or_create(name: name, rate: curr_rate)
-				arr << updated_or_created
+			currencies_hash.each do |name, rate|
+				convert_to = name[3..6] # 'USDEUR' --> 'EUR'
+				return false unless Currency.update_or_create(name: convert_to, rate: rate)
 			end
-			arr.uniq == [true]
+			true
 		end
 	end
 end

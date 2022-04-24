@@ -18,7 +18,7 @@ class Currency < ApplicationRecord
 	end
 
 	def self.assign_or_new(attributes)
-		currency = find_by(attributes) || new
+		currency = find_by(name: attributes[:name]) || new
 		currency.assign_attributes(attributes)
 		currency
 	end
